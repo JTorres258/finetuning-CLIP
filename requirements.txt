@@ -1,6 +1,6 @@
 transformers
 open_clip_torch
-datasets
+datasets<4.0.0
 pillow
 tqdm
 
