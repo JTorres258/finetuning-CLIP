@@ -1,30 +1,26 @@
-# Fine-Tuning OpenCLIP on Fashion Product Images
+# OpenCLIP Fine-tuning and Interaction
 
-This repository contains code to fine-tune an OpenCLIP (`ViT-B-32`) model on the Fashion Product Images dataset. It demonstrates how to adapt a powerful pre-trained vision-language model to a specific domain using efficient optimization techniques.
+This repository contains Jupyter notebooks for fine-tuning and interacting with OpenCLIP models. It demonstrates how to adapt pre-trained vision-language models to specific datasets and how to perform various tasks like zero-shot classification and similarity calculation.
 
 ## Files
 
-- **`OpenCLIP_finetune_improved.py`**: The main training script. It implements best practices for stable fine-tuning on small datasets.
-- **`OpenCLIP_finetune_food101.ipynb`**: The original exploratory notebook.
+- **`OpenCLIP_finetune_flickr30k.ipynb`**: An end-to-end notebook for fine-tuning an OpenCLIP (`ViT-B-32`) model on the Hugging Face `nlphuji/flickr30k` dataset. It covers data loading, model initialization, partial freezing strategies (Linear Probing), and training.
+- **`interacting-clip.ipynb`**: A self-contained notebook showing how to download and run OpenCLIP models, calculate similarity between images and text, and perform zero-shot image classification.
 - **`requirements.txt`**: Python dependencies.
 
 ## Key Features & Optimization
 
-Fine-tuning foundation models like CLIP on small datasets (e.g., ~2k images) is prone to **Model Collapse** and **Catastrophic Forgetting**. The `improved` script implements several advanced techniques to solve this:
+Fine-tuning foundation models like CLIP on smaller specific datasets can benefit from optimization techniques demonstrated in the fine-tuning notebook:
 
 1.  **Linear Probing (Partial Freezing)**:
-    *   **Frozen Vision Encoder**: The ViT backbone is frozen to preserve its powerful pre-trained features.
-    *   **Frozen Text Transformer**: The deep text layers are frozen to prevent overfitting to the small text corpus.
-    *   **Trainable Layers**: Only the `text_projection`, `ln_final` (normalization), and `token_embedding` are trained.
+    *   **Frozen Vision Encoder**: The ViT backbone is frozen to preserve pre-trained features.
+    *   **Frozen Text Transformer**: Deep text layers can be frozen to prevent overfitting.
+    *   **Trainable Layers**: Specific layers like `text_projection` are targeted for training.
 
 2.  **Stable Optimization**:
-    *   **Smart Weight Decay**: Applied *only* to weight matrices. Biases, LayerNorms, and Logit Scale are excluded from decay to prevent shrinking critical parameters.
-    *   **Gradient Clipping**: gradients are clipped to `1.0` to prevent "exploding gradient" spikes that destroy weights.
-    *   **Logit Scale Initialization**: Manually initialized to `ln(10)` (~2.3) instead of `100` to avoid gradient saturation.
-    *   **Lookahead Scheduler**: Uses a linear warmup (10% of steps) to gently introduce updates.
-
-## Performance
-With these optimizations, the model avoids collapse (where Recall drops to 0.0) and maintains high retrieval accuracy even on a small subset of data.
+    *   **Smart Weight Decay**: Improving generalization.
+    *   **Gradient Clipping**: Preventing exploding gradients.
+    *   **Logit Scale Initialization**: optimizing the scaling factor for better convergence.
 
 ## Installation
 
@@ -34,15 +30,11 @@ pip install -r requirements.txt
 
 ## Usage
 
-Run the improved training script:
+### Fine-tuning
+Open `OpenCLIP_finetune_flickr30k.ipynb` in multiple environments (Jupyter, Colab, etc.) to follow the step-by-step guide for fine-tuning the model. The notebook is configured to use the `nlphuji/flickr30k` dataset but can be adapted for other Hugging Face image-text datasets.
 
-```bash
-python OpenCLIP_finetune_improved.py
-```
-
-The script will:
-1.  Load the `ashraq/fashion-product-images-small` dataset.
-2.  Initialize the OpenCLIP ViT-B-32 model.
-3.  Apply the freezing and optimization strategies.
-4.  Train for 5 epochs.
-5.  Save the best model to `./model/openclip_food101_improved.pt`.
+### Interacting
+Open `interacting-clip.ipynb` to explore the capabilities of pre-trained OpenCLIP models. You can use it to:
+- List available pretrained models.
+- Perform multiclass classification on custom images.
+- Calculate cosine similarity between arbitrary text and images.
